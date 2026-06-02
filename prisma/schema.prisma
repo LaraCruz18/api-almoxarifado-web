@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  products Product[]
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  cnpj      String   @unique
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+
+  products Product[]
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  unity         String
+  currentStock  Int      @default(0)
+  minimumStock  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  categoryId Int
+  supplierId Int
+
+  category Category @relation(fields: [categoryId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  stockMovements StockMovement[]
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+model StockMovement {
+  id        Int          @id @default(autoincrement())
+  type      MovementType
+  quantity  Int
+  notes     String?
+  createdAt DateTime     @default(now())
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
